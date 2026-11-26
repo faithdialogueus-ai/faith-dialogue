@@ -41,8 +41,8 @@ window.SERIES = [
         pdf: "pdfs/moses/Moses_Session4_Pharaoh_and_the_Signs.pdf",
         pdfNote: "English and Turkish, side by side",
         videos: [
-          { label: "Narrated story", length: "13:36", youtube: "", file: "videos/moses/session4-narrated.mp4" },
-          { label: "Short summary", length: "2:58", youtube: "", file: "videos/moses/session4-summary.mp4" }
+                    { label: "Narrated story", length: "13:36", youtube: "_iN_FknLsSY", file: "videos/moses/session4-narrated.mp4" },
+          { label: "Short summary", length: "2:58", youtube: "Fkl6vPGUgEE", file: "videos/moses/session4-summary.mp4" }
         ]
       }
       /* Next session — remove the comment marks and fill in:

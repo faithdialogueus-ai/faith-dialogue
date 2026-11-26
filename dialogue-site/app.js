@@ -188,7 +188,9 @@
             '<input type="range" id="book-range" min="1" max="' + N + '" value="1" aria-label="Go to page"></div>' +
           '<button type="button" class="turn" id="turn-next" aria-label="Next page">' +
             '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
-          (document.fullscreenEnabled ? '<button type="button" class="button button--small" id="book-full">Full screen</button>' : "") +
+          '<button type="button" class="button button--small" id="book-full">' +
+            '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5V3h4.5M12.5 3H17v4.5M17 12.5V17h-4.5M7.5 17H3v-4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '<span>Full screen</span></button>' +
         "</div>" +
       "</div>";
 
@@ -227,9 +229,9 @@
     }
 
     function size() {
-      var w = wrap.clientWidth;
-      var full = document.fullscreenElement === wrap;
-      var room = window.innerHeight - (full ? 100 : 120);
+      var full = wrap.classList.contains("is-full");
+      var w = full ? wrap.clientWidth - 16 : wrap.clientWidth;
+      var room = window.innerHeight - (full ? 96 : 120);
       spread = w >= 860;
       if (spread) pageW = Math.min((w - 16) / 2, room / ratio);
       else pageW = w;   // phones: full width; turn the phone sideways for bigger text
@@ -361,6 +363,7 @@
       if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
       if (e.key === "ArrowRight" || e.key === "PageDown") { go(1); e.preventDefault(); }
       if (e.key === "ArrowLeft" || e.key === "PageUp") { go(-1); e.preventDefault(); }
+      if (e.key === "Escape" && wrap.classList.contains("is-full") && !document.fullscreenElement) setFull(false);
     }
     document.addEventListener("keydown", onKey);
     var downX = null, downY = null;
@@ -376,9 +379,19 @@
       }
     });
     var full = document.getElementById("book-full");
-    if (full) full.addEventListener("click", function () {
-      if (document.fullscreenElement) document.exitFullscreen(); else wrap.requestFullscreen();
-    });
+    function setFull(on) {
+      wrap.classList.toggle("is-full", on);
+      document.documentElement.classList.toggle("reading-full", on);
+      full.querySelector("span").textContent = on ? "Close" : "Full screen";
+      full.setAttribute("aria-pressed", String(on));
+      if (on && wrap.requestFullscreen && document.fullscreenEnabled && !document.fullscreenElement) {
+        wrap.requestFullscreen().catch(function () {});
+      }
+      if (!on && document.fullscreenElement) document.exitFullscreen().catch(function () {});
+      relayout();
+      if (!on) wrap.scrollIntoView({ block: "start" });
+    }
+    full.addEventListener("click", function () { setFull(!wrap.classList.contains("is-full")); });
     function relayout() {
       var was = spread, oldW = pageW;
       size();
@@ -389,8 +402,9 @@
     function onResize() { clearTimeout(t); t = setTimeout(relayout, 200); }
     window.addEventListener("resize", onResize);
     function onFull() {
-      if (full) full.textContent = document.fullscreenElement ? "Exit full screen" : "Full screen";
-      relayout();
+      // leaving the browser's full screen (Esc, back button) also closes our full-screen view
+      if (!document.fullscreenElement && wrap.classList.contains("is-full")) setFull(false);
+      else relayout();
     }
     document.addEventListener("fullscreenchange", onFull);
 
@@ -405,6 +419,7 @@
     });
 
     return function () {
+      document.documentElement.classList.remove("reading-full");
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("fullscreenchange", onFull);
       window.removeEventListener("resize", onResize);

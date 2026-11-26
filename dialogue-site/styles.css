@@ -267,7 +267,32 @@ main:focus { outline: none; }
 .modes button[aria-pressed="true"]:hover { color: #1a1408; }
 
 .book-wrap { display: flex; flex-direction: column; align-items: center; padding-top: .5rem; scroll-margin-top: .5rem; }
-.book-wrap:fullscreen { background: var(--night); justify-content: center; padding: 1rem; }
+.book-wrap.is-full {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--night);
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.book-wrap.is-full .book { flex: 1 0 auto; align-items: center; }
+.book-wrap.is-full .book-controls {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  margin-top: .5rem;
+  padding: .6rem .5rem calc(.6rem + env(safe-area-inset-bottom));
+  background: rgba(20, 26, 42, .94);
+  border-top: 1px solid rgba(214, 174, 91, .25);
+}
+html.reading-full, html.reading-full body { overflow: hidden; }
+/* phone held sideways: a slimmer bar so more of the page shows */
+@media (max-height: 500px) {
+  .book-wrap.is-full .book-controls { padding-top: .35rem; padding-bottom: calc(.35rem + env(safe-area-inset-bottom)); }
+  .book-wrap.is-full .book-controls input[type="range"] { display: none; }
+  .book-wrap.is-full .turn { width: 38px; height: 38px; }
+}
 .book { outline: none; width: 100%; display: flex; justify-content: center; }
 .book:focus-visible .book__stage { outline: 2px solid var(--gilt); outline-offset: 6px; }
 .book__stage { position: relative; display: flex; perspective: 2600px; touch-action: pan-y pinch-zoom; cursor: pointer; user-select: none; -webkit-user-select: none; }
@@ -301,6 +326,7 @@ main:focus { outline: none; }
 .turn:hover { background: rgba(214, 174, 91, .14); }
 .turn:disabled { opacity: .35; cursor: default; background: transparent; }
 .button--small { font-size: .95rem; padding: .45rem .9rem; }
+.button--small svg { width: 1em; height: 1em; }
 @media (prefers-reduced-motion: reduce) { .leaf.is-turning { transition: none; } }
 
 /* ---------- Footer ---------- */
@@ -324,6 +350,9 @@ main:focus { outline: none; }
   .session { grid-template-columns: 2.8rem minmax(0, 1fr); gap: 0 1rem; }
   .session__num { font-size: var(--step-2); }
   .reader { margin: 0 -1rem; }
+  .book-controls { gap: .5rem .75rem; }
+  .book-controls__middle { min-width: 0; flex: 1 1 140px; }
+  .turn { width: 44px; height: 44px; }
   .sheet { margin-bottom: 1.5rem; }
   .pdf-panel { grid-template-columns: 96px minmax(0, 1fr); gap: 1rem; }
 }
